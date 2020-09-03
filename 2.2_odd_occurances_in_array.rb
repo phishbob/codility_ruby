@@ -3,6 +3,8 @@
 require "test/unit/assertions"
 include Test::Unit::Assertions
 
+# 100%
+
 # A non-empty array A consisting of N integers is given. The array contains an odd number of elements,
 # and each element of the array can be paired with another element that has the same value, except for
 # one element that is left unpaired.
@@ -35,25 +37,21 @@ include Test::Unit::Assertions
 # each element of array A is an integer within the range [1..1,000,000,000];
 # all but one of the values in A occur an even number of times.
 
-N_MIN = 1
-N_MAX = 1000000
-A_MAX = 1000000000
+
+MIN_VAL = 1
+MAX_VAL = 1000000000
+A_MIN  = 1
+A_MAX = 1000000
 
 def solution(a)
-	raise ArgumentError.new("a has to be non empty array wirh max #{A_MAX} elements") if !a.is_a? Array or a.empty? or a.length > A_MAX
+	#puts "START with array of length #{a.length}"
+	raise ArgumentError.new("a has to be non empty array with max #{A_MAX} elements") if !a.is_a? Array or a.empty? or a.length > A_MAX
 	raise ArgumentError.new("a has to be odd array") if a.length%2 == 0
-	# a.each do |elem|
-	# 	raise ArgumentError.new("a values only integers") unless elem.is_a? Integer
-	# end
-
-	#raise ArgumentError.new("a values only integers") unless a.all?(Integer)
-	#a_sort = a.sort
-	#raise ArgumentError.new("a values between #{N_MIN} and #{N_MAX}") if a_sort.first < N_MIN or a_sort.last > N_MAX
 
 	matches = Hash.new
 
 	a.each do |elem|
-		raise ArgumentError.new("a values between #{N_MIN} and #{N_MAX}") if elem < N_MIN or elem > N_MAX
+		raise ArgumentError.new("a values between #{MIN_VAL} and #{MAX_VAL}") if elem < MIN_VAL or elem > MAX_VAL
 		raise ArgumentError.new("a values only integers") unless elem.is_a? Integer
 
 		if matches[elem]
@@ -91,10 +89,14 @@ end
 def gen_arr(len, odd)
 	#ret = Array.new(len*2+1)
 	ret = Array.new
-	(1..len).step(2).each do |i|
-		num = rand(N_MIN..N_MAX)
-		ret.push(num, num)
+	(0...(len/2-1)).each do |i|
+		num = rand(MIN_VAL..MAX_VAL)
+		ret.push(num,num)
 	end
+	# (1..len).step(2).each do |i|
+	# 	num = rand(N_MIN..N_MAX)
+	# 	ret.push(num, num)
+	# end
 	ret.push(odd)
 	#puts "ret ....... = #{ret.sort}"
 	ret.shuffle!
@@ -103,17 +105,16 @@ def gen_arr(len, odd)
 end
 
 
-#puts solution(gen_arr(1000000,3))
+puts solution(gen_arr(A_MAX,3))
 puts solution([1,4,4,2,1])
 puts solution([9,3,9,3,9,7,9])
 
 
 
-assert_raise(ArgumentError.new("a has to be non empty array wirh max #{A_MAX} elements")){solution([])}
-assert_raise(ArgumentError.new("a has to be non empty array wirh max #{A_MAX} elements")){solution(1)}
-#assert_raise(ArgumentError.new("a has to be non empty array wirh max #{A_MAX} elements")){solution(Array.new(A_MAX+1,1))}
+assert_raise(ArgumentError.new("a has to be non empty array with max #{A_MAX} elements")){solution([])}
+assert_raise(ArgumentError.new("a has to be non empty array with max #{A_MAX} elements")){solution(1)}
 
 assert_raise(ArgumentError.new("a has to be odd array")){solution(Array.new(10,1))}
 assert_raise(ArgumentError.new("a values only integers")){solution([1.2])}
-assert_raise(ArgumentError.new("a values between #{N_MIN} and #{N_MAX}")){solution([1,2,N_MIN-1,3,4])}
-assert_raise(ArgumentError.new("a values between #{N_MIN} and #{N_MAX}")){solution([1,2,N_MAX+1,3,4])}
+assert_raise(ArgumentError.new("a values between #{MIN_VAL} and #{MAX_VAL}")){solution([1,2,MIN_VAL-1,3,4])}
+assert_raise(ArgumentError.new("a values between #{MIN_VAL} and #{MAX_VAL}")){solution([1,2,MAX_VAL+1,3,4])}
