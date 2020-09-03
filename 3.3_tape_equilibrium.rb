@@ -3,27 +3,7 @@
 require "test/unit/assertions"
 include Test::Unit::Assertions
 
-# score 52% - too slow on the bigger tests
-# medium_random1
-# random medium, numbers from 0 to 100, length = ~10,000 ✘TIMEOUT ERROR
-# Killed. Hard limit reached: 6.000 sec.
-# 1. 6.000 s TIMEOUT ERROR,  Killed. Hard limit reached: 6.000 sec.
-# ▶ medium_random2
-# random medium, numbers from -1,000 to 50, length = ~10,000 ✘TIMEOUT ERROR
-# Killed. Hard limit reached: 6.000 sec.
-# 1. 6.000 s TIMEOUT ERROR,  Killed. Hard limit reached: 6.000 sec.
-# ▶ large_ones
-# large sequence, numbers from -1 to 1, length = ~100,000 ✘TIMEOUT ERROR
-# Killed. Hard limit reached: 6.000 sec.
-# ▶ large_random
-# random large, length = ~100,000 ✘TIMEOUT ERROR
-# Killed. Hard limit reached: 6.000 sec.
-# ▶ large_sequence
-# large sequence, length = ~100,000 ✘TIMEOUT ERROR
-# Killed. Hard limit reached: 6.000 sec.
-# ▶ large_extreme
-# large test with maximal and minimal values, length = ~100,000 ✘TIMEOUT ERROR
-# Killed. Hard limit reached: 6.000 sec.
+# score 100%
 
 # A non-empty array A consisting of N integers is given. Array A represents numbers on a tape.
 # Any integer P, such that 0 < P < N, splits this tape into two non-empty parts: A[0], A[1],
@@ -66,34 +46,40 @@ MIN_VAL = -1000
 MAX_VAL =  1000
 
 def solution(a)
+    #puts a.inspect
     raise ArgumentError.new("a needs to be array") if !a.is_a? Array
     raise ArgumentError.new("a has to > #{A_MIN} and < #{A_MAX} elements") if a.length < A_MIN or a.length > A_MAX
+    a.each do |val|
+        raise ArgumentError.new("elements of array have to be between -1000 and 1000") if val < MIN_VAL or val > MAX_VAL
+    end
 
     min = nil
-    # get the split mark
-    for split in 1..a.length-1 do
-    	#puts "split array at position #{split}"
+    a_sum_low = 0
+    a_sum_high = 0
+    a.each {|i| a_sum_high += i}
 
-    	low = 0
-    	high = 0
-    	a.each_with_index do |val, index|
-            if split == 1
-                raise ArgumentError.new("elements of array have to be between -1000 and 1000") if val < MIN_VAL or val > MAX_VAL
-            end
-    		if index < split
-	    		low = low + val
-	    	else
-	    		high = high + val
-	    	end
-    	end
-    	diff = (low - high).abs
-    	#puts "diff = #{diff}"
-    	min = diff if min == nil or min > diff
+    #puts "sum high: #{a_sum_high}"
+    (0...a.length-1).each do |i|
+      #puts "i = #{i}"
+      a_sum_low += a[i]
+      a_sum_high -= a[i]
+      #puts "#{i} --> count: ai: #{a[i]}, a_high: #{a[a.length-1-i]}"
+      #puts "         sum: low: #{a_sum_low}, high: #{a_sum_high}"
+      diff = (a_sum_low - a_sum_high).abs
+      min = diff if min == nil or min > diff
     end
 
     return min
 end
 
+
+puts solution([1000,-1000])
+#puts solution([1,2,3])
+puts solution([1,2,5,7])
+
+puts solution([3 ,1, 2, 4, 3])
+arr = Array.new(A_MAX) { |i| rand(MIN_VAL..MAX_VAL) }
+puts solution(arr)
 ## fail
 assert_raise(ArgumentError.new("a needs to be array")) {solution(1)}
 assert_raise(ArgumentError.new("a has to > #{A_MIN} and < #{A_MAX} elements")) {solution([1])}
