@@ -3,11 +3,27 @@
 require "test/unit/assertions"
 include Test::Unit::Assertions
 
-N_RANGE_MIN = 2
- N_RANGE_MAX =100000
-ELEMENT_RANGE_MIN = -1000
-ELEMENT_RANGE_MAX =  1000
-
+# score 52% - too slow on the bigger tests
+# medium_random1
+# random medium, numbers from 0 to 100, length = ~10,000 ✘TIMEOUT ERROR
+# Killed. Hard limit reached: 6.000 sec.
+# 1. 6.000 s TIMEOUT ERROR,  Killed. Hard limit reached: 6.000 sec.
+# ▶ medium_random2
+# random medium, numbers from -1,000 to 50, length = ~10,000 ✘TIMEOUT ERROR
+# Killed. Hard limit reached: 6.000 sec.
+# 1. 6.000 s TIMEOUT ERROR,  Killed. Hard limit reached: 6.000 sec.
+# ▶ large_ones
+# large sequence, numbers from -1 to 1, length = ~100,000 ✘TIMEOUT ERROR
+# Killed. Hard limit reached: 6.000 sec.
+# ▶ large_random
+# random large, length = ~100,000 ✘TIMEOUT ERROR
+# Killed. Hard limit reached: 6.000 sec.
+# ▶ large_sequence
+# large sequence, length = ~100,000 ✘TIMEOUT ERROR
+# Killed. Hard limit reached: 6.000 sec.
+# ▶ large_extreme
+# large test with maximal and minimal values, length = ~100,000 ✘TIMEOUT ERROR
+# Killed. Hard limit reached: 6.000 sec.
 
 # A non-empty array A consisting of N integers is given. Array A represents numbers on a tape.
 # Any integer P, such that 0 < P < N, splits this tape into two non-empty parts: A[0], A[1],
@@ -44,30 +60,26 @@ ELEMENT_RANGE_MAX =  1000
 # N is an integer within the range [2..100,000];
 # each element of array A is an integer within the range [−1,000..1,000].
 
+A_MIN = 2
+A_MAX = 100000
+MIN_VAL = -1000
+MAX_VAL =  1000
 
 def solution(a)
-    # Minimize the value |(A[0] + ... + A[P-1]) = (A[P] + ... + A[N-1])|.
-    # :param A: non-empty list of integers
-    # :return: an integer - the index value where the smallest difference occurs
-    # array must be more than 2 elements
-
     raise ArgumentError.new("a needs to be array") if !a.is_a? Array
-    raise ArgumentError.new("a has to have  >= 2 elements") if a.length < 2
-    raise ArgumentError.new("a has to have  <=  100000 elements") if a.length > 100000
-    a_sort = a.sort
-    #puts "a min = #{a_sort.first}, a max = #{a_sort.last}"
-    raise ArgumentError.new("elements of array have to be between -1000 and 1000") if a_sort.first < ELEMENT_RANGE_MIN or a_sort.last > ELEMENT_RANGE_MAX
+    raise ArgumentError.new("a has to > #{A_MIN} and < #{A_MAX} elements") if a.length < A_MIN or a.length > A_MAX
 
-    l = a.length
     min = nil
-
     # get the split mark
-    for split in 1..l-1 do
+    for split in 1..a.length-1 do
     	#puts "split array at position #{split}"
 
     	low = 0
     	high = 0
     	a.each_with_index do |val, index|
+            if split == 1
+                raise ArgumentError.new("elements of array have to be between -1000 and 1000") if val < MIN_VAL or val > MAX_VAL
+            end
     		if index < split
 	    		low = low + val
 	    	else
@@ -84,12 +96,11 @@ end
 
 ## fail
 assert_raise(ArgumentError.new("a needs to be array")) {solution(1)}
-assert_raise(ArgumentError.new("a has to have  >= 2 elements")) {solution([1])}
+assert_raise(ArgumentError.new("a has to > #{A_MIN} and < #{A_MAX} elements")) {solution([1])}
+assert_raise(ArgumentError.new("a has to > #{A_MIN} and < #{A_MAX} elements")) {solution(Array.new(A_MAX+1,1))}
 assert_raise(ArgumentError.new("elements of array have to be between -1000 and 1000")) {solution([1,2,-1001])}
 assert_raise(ArgumentError.new("elements of array have to be between -1000 and 1000")) {solution([1001, 1,2, -1000])}
-a = Array.new
-(0..N_RANGE_MAX).each{ a.push(rand(-1000..1000)) }
-assert_raise(ArgumentError.new("a has to have  <=  100000 elements")) {solution(a)}
+
 ## success
 assert_equal(2,solution([1,2,5]))
 assert_equal(1000,solution([-1000, -900, -200, 100, 1000]))
