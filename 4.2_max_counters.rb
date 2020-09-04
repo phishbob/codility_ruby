@@ -3,54 +3,7 @@
 require "test/unit/assertions"
 include Test::Unit::Assertions
 
-# score 66%  -> correctness 100%, perfomance 40%
-
-#  medium_random1
-# medium random test, 50 max_counter operations
-# ✔
-# OK
-# 1.
-# 0.048 s
-# OK
-# ▶
-# medium_random2
-# medium random test, 500 max_counter operations
-# ✔
-# OK
-# 1.
-# 0.072 s
-# OK
-# ▶
-# large_random1
-# large random test, 2120 max_counter operations
-# ✘
-# TIMEOUT ERROR
-# running time: 3.576 sec., time limit: 0.352 sec.
-# 1.
-# 3.576 s
-# TIMEOUT ERROR, running time: 3.576 sec., time limit: 0.352 sec.
-# ▶
-# large_random2
-# large random test, 10000 max_counter operations
-# ✘
-# TIMEOUT ERROR
-# Killed. Hard limit reached: 6.000 sec.
-# 1.
-# 6.000 s
-# TIMEOUT ERROR, Killed. Hard limit reached: 6.000 sec.
-# ▶
-# extreme_large
-# all max_counter operations
-# ✘
-# TIMEOUT ERROR
-# Killed. Hard limit reached: 6.000 sec.
-# 1.
-# 6.000 s
-# TIMEOUT ERROR, Killed. Hard limit reached: 6.000 sec.
-# 2.
-# 0.160 s
-# OK
-
+# score 100%  -> correctness 100%, perfomance 40%
 
 # You are given N counters, initially set to 0, and you have two possible operations on them:
 
@@ -117,21 +70,38 @@ def solution(n,a)
 	#create return array
 	ret = Array.new(n,0)
 	max_val = 0
+	min_val = 0
 	a.each do |elem|
 		raise ArgumentError.new("die werte von a müssen zwischen 1 und #{n+1} liegen") if elem < 1 or elem > n+1
 		#puts "#{elem}, array before: #{ret.inspect}"
 		if elem > n
 			#puts "in if. max_val: #{max_val}"
-			ret.collect! {max_val}
+			#ret.collect! {max_val}
+			min_val = max_val
 		else
-			ret[elem-1] += 1
+			if ret[elem-1] < min_val
+				ret[elem-1] = min_val+1
+			else
+				ret[elem-1] += 1
+			end
 			max_val = ret[elem-1] if ret[elem-1] > max_val
 		end
+	end
+
+	(0...ret.length).each do |i|
+		ret[i] = min_val if ret[i] < min_val
 	end
 	return ret
 end
 
 puts solution(3, [1,2,4,2,3]).inspect
+
+
+
+puts solution(5,[3, 4, 4, 6, 1, 4, 4]).inspect
+
+arr = Array.new(10000) { |i| 		rand(1..100001)  }
+solution(100000, arr)
 
 #solution(1,2)
 assert_raise(ArgumentError.new("n muss zwischen #{RANGE_MIN} und #{RANGE_MAX} liegen")) {solution(RANGE_MIN-1,[2])}
