@@ -55,36 +55,41 @@ RANGE_INT_MAX = 100000
 
 def solution(x,a)
 	raise ArgumentError.new("a needs to be an non empty array") unless a.is_a? Array and !a.empty?
+	raise ArgumentError.new("a needs to be an smaller than #{RANGE_INT_MAX}") if a.length > RANGE_INT_MAX
 	raise ArgumentError.new("x out of bounds") if x < RANGE_INT_MIN or x > RANGE_INT_MAX
-	a_sort = a.sort
-	raise ArgumentError.new("a values out of bounds") if a_sort.first < RANGE_INT_MIN or a_sort.last > RANGE_INT_MAX
 
 	my_hash = {}
 	(1..x).each{ |i| my_hash[i]=i}
 
+	#puts my_hash.inspect
+
 	a.each_with_index do |val, idx|
-		puts "val: #{val}, index: #{idx}"
+		raise ArgumentError.new("a values out of bounds") if val < RANGE_INT_MIN or val > RANGE_INT_MAX
+		#puts "val: #{val}, index: #{idx} --> #{my_hash[val]}"
 		my_hash.delete val unless my_hash[val].nil?
 		return idx if my_hash.empty?
 	end
 
-
-	return -1
 	puts "my_hash = #{my_hash}"
-
-
+	return -1
 end
 
-puts solution(4,[1,2,4,3,3,5])
+puts solution(5,[1,2,4,5,3])
+#solution(4,[1,RANGE_INT_MAX+1,2])
 
+#arr = Array.new(RANGE_INT_MAX) { |i| i+1 }
+#puts arr.inspect
+#puts "#{arr.first} ,  #{arr.last}"
+#puts solution(RANGE_INT_MAX, arr)
 ## fail
-# assert_raise(ArgumentError.new("a needs to be an non empty array")) {solution(1,1)}
-# assert_raise(ArgumentError.new("a needs to be an non empty array")) {solution(1,[])}
-# assert_raise(ArgumentError.new("x out of bounds")) {solution(RANGE_INT_MIN-1,[1,2])}
-# assert_raise(ArgumentError.new("x out of bounds")) {solution(RANGE_INT_MAX+1,[1,2])}
-# assert_raise(ArgumentError.new("a values out of bounds")) {solution(1,[1,RANGE_INT_MAX+1,2])}
-# assert_raise(ArgumentError.new("a values out of bounds")) {solution(1,[1,RANGE_INT_MIN-1,2])}
+assert_raise(ArgumentError.new("a needs to be an non empty array")) {solution(1,1)}
+assert_raise(ArgumentError.new("a needs to be an non empty array")) {solution(1,[])}
+assert_raise(ArgumentError.new("x out of bounds")) {solution(RANGE_INT_MIN-1,[1,2])}
+assert_raise(ArgumentError.new("x out of bounds")) {solution(RANGE_INT_MAX+1,[1,2])}
+assert_raise(ArgumentError.new("a values out of bounds")) {solution(4,[1,RANGE_INT_MAX+1,2])}
+assert_raise(ArgumentError.new("a values out of bounds")) {solution(4,[1,RANGE_INT_MIN-1,2])}
 
-## success
-#assert_equal(2,solution([1,2,5]))
-
+# ## success
+assert_equal(3,solution(4,[1,2,4,3,3,5]))
+assert_equal(-1,solution(7,[1,2,3,4,5]))
+assert_equal(99999, solution(RANGE_INT_MAX, Array.new(RANGE_INT_MAX) { |i| i+1 }))
