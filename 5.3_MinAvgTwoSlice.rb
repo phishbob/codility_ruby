@@ -2,6 +2,7 @@
 require "test/unit/assertions"
 include Test::Unit::Assertions
 
+# score 100%
 
 # A non-empty array A consisting of N integers is given. A pair of integers (P, Q), such that 0 ≤ P < Q < N,
 # is called a slice of array A (notice that the slice contains at least two elements).
@@ -46,6 +47,7 @@ include Test::Unit::Assertions
 # N is an integer within the range [2..100,000];
 # each element of array A is an integer within the range [−10,000..10,000].
 
+A_MIN_LENGTH = 2
 A_MAX_LENGTH = 100000
 A_MIN = -10000
 A_MAX =  10000
@@ -53,43 +55,52 @@ A_MAX =  10000
 def solution(a)
     ## testing
     raise ArgumentError.new("a has to be non empty array with at least 2 elements") if !a.is_a? Array or a.length < 2
-    raise ArgumentError.new("a length has to be less than < #{A_MAX_LENGTH}") unless a.length < A_MAX_LENGTH
-    a.each {|val| raise ArgumentError.new("a values have to be integers") unless val.is_a? Integer }
-    a_sort = a.sort
-    raise ArgumentError.new("a values have to be between #{A_MIN} and #{A_MAX}") if a_sort.first < A_MIN or a_sort.last > A_MAX
+    raise ArgumentError.new("a length has to be less than < #{A_MAX_LENGTH}") unless a.length <= A_MAX_LENGTH
+    a.each {|val|
+        raise ArgumentError.new("a values have to be integers") unless val.is_a? Integer
+        raise ArgumentError.new("a values have to be between #{A_MIN} and #{A_MAX}") if val < A_MIN or val > A_MAX
+    }
+    #a_sort = a.sort
+    #raise ArgumentError.new("a values have to be between #{A_MIN} and #{A_MAX}") if a_sort.first < A_MIN or a_sort.last > A_MAX
 
     ## coding
-    puts "solution -> #{a}"
 
-    a_length = a.length
+    #a_length = a.length
     min_start_slice = nil
     min_avg = nil
+    a_length = a.length
 
-    a.each_with_index do |val, start_slice|
-        #puts "start_slice: #{start_slice} => val: #{val}"
-        #iterating over the silces
-        (start_slice+1..a_length-1).each do |end_slice|
-            next if end_slice <= start_slice
-            arr_sum = 0
-            a[start_slice..end_slice].each {|v| arr_sum+=v}
-            #puts "array sum #{arr_sum}, length of slice = #{start_slice+1} - #{end_slice} = #{end_slice-start_slice+1}"
-            average = arr_sum/(end_slice-start_slice+1).to_f.round(2)
-            #puts "average = #{average}"
-            if min_avg == nil or min_avg > average
-                min_avg = average.round(2)
-                min_start_slice = start_slice
-                puts "NEW MIN avg : #{min_avg} at #{start_slice}"
-            end
+    (0...a.length-1).each do |i|
+        last_val = a[i+1]
+        min2 = (a[i] + a[i+1]) / 2.0
+        min3 = i < a_length-2 ? (a[i] + a[i+1] + a[i+2]) / 3.0  : nil
+        local_min = nil
+        local_min =     (!min3.nil? && min3 < min2) ? min3 : min2
+        #puts "local_min : #{local_min}"
+        if min_avg.nil? or local_min < min_avg
+            min_avg = local_min
+            min_start_slice = i
         end
 
     end
 
-    puts "min average = #{min_avg}, starting at #{min_start_slice}"
+
+    #puts "min average = #{min_avg}, starting at #{min_start_slice}"
     return min_start_slice
 end
 
-puts "SOL 1 : " + solution([1,3,3,4,1,2]).to_s
-puts "SOL 2 : " + solution([4,2,2,5,1,5,8]).to_s
+assert_equal(4,solution([1,3,3,4,1,2]))
+assert_equal(1, solution([4,2,2,5,1,5,8]))
+assert_equal(1, solution([-6,-8,-10,1,2]))
+assert_equal(0, solution([-1, 1, -1, 1, -1]))
+assert_equal(0, solution([-8, -6, -10,1,23]))
+
+arr = Array.new(A_MAX_LENGTH) { rand(-10000...10000) }
+arr[A_MAX_LENGTH-1] = -10000
+arr[A_MAX_LENGTH-2] = -10000
+#puts arr.length
+assert_equal(99998, solution(arr))
+
 
 assert_raise(ArgumentError.new("wrong number of arguments (given 0, expected 1)")) {solution()}
 assert_raise(ArgumentError.new("a has to be non empty array with at least 2 elements")) {solution(1)}
