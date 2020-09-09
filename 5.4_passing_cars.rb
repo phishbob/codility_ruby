@@ -43,39 +43,49 @@ include Test::Unit::Assertions
 # N is an integer within the range [1..100,000];
 # each element of array A is an integer that can have one of the following values: 0, 1.
 N_MIN = 1
-N_MAX = 1000000
+N_MAX = 100000
 
 def solution(a)
 	raise ArgumentError.new("a has to be non-empty array") if !a.is_a? Array or a.empty?
 	raise ArgumentError.new("a length has to be less than #{N_MAX}") if a.length > N_MAX
-	a.each do |elem|
+	sum = 0
+	ones_array = Array.new(a.length)
+	reverse_index = a.length-1
+
+	marker = 1 #a.first == 0 ? 1 : 0
+
+	a.reverse_each do |elem|
 		#puts "elem #{elem} #{elem.is_a? Integer}"
 		raise ArgumentError.new("all values have to be integer") unless elem.is_a? Integer
 		raise ArgumentError.new("all values have to be 0 or 1") if elem != 0 and elem != 1
+		sum += 1 if elem == marker
+		ones_array[reverse_index] = sum
+		reverse_index -= 1
 	end
 
+	#puts "#{i} -> passing_cars: #{ones_array}"
+
+
 	passing_cars = 0
-	## find cars moving into direction 0
-	a.each_with_index do |zero, idx|
-		next unless zero == 0
-		a[idx..-1].each do |one|
-			next unless one == 1
-			passing_cars += 1
-		end
+	a.each_index do |i|
+		next if a[i] == marker
+		passing_cars += ones_array[i]
+		#puts "passing_cars : #{passing_cars}, ones_array[#{i}] -> #{ones_array[i]}"
 		return -1 if passing_cars > 1000000000
 	end
-	passing_cars = -1 if passing_cars > 1000000000
 	return passing_cars
 end
 
-puts solution([0,1,0,1,1])
-puts solution([0,0,0,1])
-puts solution([0,1,0,1,1,1])
-puts solution([0,0,0,1,1,1])
+# assert_equal(0,solution([0,0]))
+assert_equal(0,solution([1,0]))
+assert_equal(5,solution([0,1,0,1,1]))
+assert_equal(3,solution([0,0,0,1]))
+assert_equal(7,solution([0,1,0,1,1,1]))
+assert_equal(9,solution([0,0,0,1,1,1]))
+assert_equal(0, solution([1,1,1,0,0,0]))
 
-arr_a  = Array.new((N_MAX/2)-1 ,0  )
-arr_b  = Array.new((N_MAX/2)-1 ,1  )
-puts solution(arr_a+arr_b)
+assert_equal(-1, solution(Array.new(50000,0) + Array.new(50000,1) ))
+
 
 
 assert_raise(ArgumentError.new("a has to be non-empty array")) { solution(1)}
