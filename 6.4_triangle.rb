@@ -36,40 +36,69 @@ include Test::Unit::Assertions
 
 A_MIN = 0
 A_MAX = 100000
-MIN_VAL = -2147483647
+MIN_VAL = -2147483648
 MAX_VAL = 2147483647
 
-def solution(a)
-	raise ArgumentError.new("a must be array") if !a.is_a? Array
-	raise ArgumentError.new("a length must be between #{A_MIN} and #{A_MAX}") if a.length < A_MIN or a.length > A_MAX
-	raise ArgumentError.new("a elements have to be integers between #{MIN_VAL}..#{MAX_VAL}") unless a.all? {|elem| elem.is_a? Integer }
+def solution_brute_and_slow(a)
+	raise ArgumentError.new("a has to be array smaller than #{A_MAX}") if !a.is_a?(Array) && a.length > A_MAX
+
 	return 0 if a.length < 3
-	a_sort = a.sort
-	raise ArgumentError.new("a elements have to be integers between #{MIN_VAL}..#{MAX_VAL}") if a_sort.first < MIN_VAL or a_sort.last > MAX_VAL
+	len = a.length
+	a[0...len-2].each_index do |i|
+		if !a[i].is_a? Integer or a[i] < MIN_VAL or a[i] > MAX_VAL
+			raise ArgumentError.new("values have to be integers between #{MIN_VAL} and #{MAX_VAL}")
+		end
 
+		(i+1...len-1).each do |j|
+			jidx = i+1+j
 
-
-	# check if if 0 ≤ P < Q < R < N and:
-	a.each_with_index do |p, idx1|
-		a.each_with_index do |q, idx2|
-			next if idx2 <= idx1
-			a.each_with_index do |r, idx3|
-				next if idx3 <= idx2
-
-				# A[P] + A[Q] > A[R],
-				# A[Q] + A[R] > A[P],
-				# A[R] + A[P] > A[Q].
-				return 1 if p + q > r && q+r > p && r+p >q
+			(j+1...len).each do |k|
+					kidx = k+1+j
+					# A[i] + A[j] > A[k],
+					# A[j] + A[k] > A[i],
+					# A[k] + A[i] > A[j].
+					return 1 if is_triangle(a[i] , a[j], a[k])
+					#return 1 if a[i] + a[j] > a[k] && a[j] + a[k] > a[i] && a[k] + a[i] > a[j]
 			end
 		end
 	end
+	return 0
+	# 0 ≤ P < Q < R < N
+end
 
+
+def solution(a)
+	raise ArgumentError.new("a has to be array smaller than #{A_MAX}") if !a.is_a?(Array) && a.length > A_MAX
+	return 0 if a.length < 3
+	a.sort!
+	a[a.length-3..a.length].each_index do |i|
+		if !a[i].is_a? Integer or a[i] < MIN_VAL or a[i] > MAX_VAL
+			raise ArgumentError.new("values have to be integers between #{MIN_VAL} and #{MAX_VAL}")
+		end
+	end
+
+	a[0...a.length-2].each_index do |i|
+		if !a[i].is_a? Integer or a[i] < MIN_VAL or a[i] > MAX_VAL
+			raise ArgumentError.new("values have to be integers between #{MIN_VAL} and #{MAX_VAL}")
+		end
+		return 1 if is_triangle(a[i], a[i+1], a[i+2])
+	end
 	return 0
 end
 
-puts solution([1])
-puts solution([1,10,4,5,7,7,8])
-puts solution([10,50,5,1])
+
+def is_triangle(p,q,r)
+	return true if p+q > r && q+r > p && r+p > q
+	return false
+end
+
+
+assert_equal(1, solution([1,10,4,5,7,7,8]))
+assert_equal(1,solution([1,2,3,4]))
+assert_equal(0, solution([1,2]))
+
+assert_raise(ArgumentError.new("values have to be integers between #{MIN_VAL} and #{MAX_VAL}")){solution([1,MIN_VAL-1,2])}
+assert_raise(ArgumentError.new("values have to be integers between #{MIN_VAL} and #{MAX_VAL}")){solution([1,MAX_VAL+1,2])}
 
 assert_raise(ArgumentError.new("a must be array")) {solution(1)}
 arr = Array.new(A_MAX+1, 1)
