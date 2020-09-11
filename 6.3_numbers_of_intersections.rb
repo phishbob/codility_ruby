@@ -3,7 +3,7 @@
 require "test/unit/assertions"
 include Test::Unit::Assertions
 
-
+# score 62% -> 100% correctness, 25% performance
 # We draw N discs on a plane. The discs are numbered from 0 to N − 1. An array A of N non-negative integers,
 # specifying the radiuses of the discs, is given. The J-th disc is drawn with its center at (J, 0) and radius A[J].
 
@@ -41,45 +41,53 @@ A_MIN = 0
 A_MAX = 100000
 MIN_VAL = 0
 MAX_VAL = 2147483647
-
+MAX_BREAK = 10000000
 
 def solution(a)
 	raise ArgumentError.new("a must be array") if !a.is_a? Array
 	raise ArgumentError.new("a length must be between #{A_MIN} and #{A_MAX}") if a.length < A_MIN or a.length > A_MAX
-	a.each do |elem|
+	rad_min = Array.new(a.length)
+	a.each_with_index do |elem,i|
 		if !elem.is_a? Integer or elem < MIN_VAL or elem > MAX_VAL
 			raise ArgumentError.new("a elements have to be integers between #{MIN_VAL}..#{MAX_VAL}")
 		end
+		rad_min[i] =  i- elem # radius minimum
 	end
 
+	#puts "rad_min: #{rad_min.inspect}"
 	# we can neglect y axis. just get min and max x values for the circles
 	intersect = 0
+	a_length = a.length
 	a.each_with_index do |val1, idx1|
-		# range of this circle is idx1-val -> idx1+val
-		r1_min = idx1-val1
 		r1_max = idx1+val1
-		a.each_with_index do |val2, idx2|
-			next if idx2 <= idx1
-
-			r2_min = idx2-val2
-			r2_max = idx2+val2
-			## we can look if this intersects
-			intersect += 1 if r1_max > r2_min
-
+		(idx1+1...a_length).each do |i|
+			#puts "idx1: #{idx1}, i: #{i} r1_max -> #{r1_max}, rad_min[#{i}]: #{rad_min[i]}"
+			intersect += 1 if r1_max >= rad_min[i]
 		end
 
-		return -1 if intersect >= 10000
+		return -1 if intersect > MAX_BREAK
 	end
 
 	return intersect
 end
 
-puts solution([1,5,2,1,4,0])
 
-assert_raise(ArgumentError.new("a must be array")) {solution(1)}
-arr = Array.new
-(0..A_MAX).each {|val| arr.push(1)}
-assert_raise(ArgumentError.new("a length must be between #{A_MIN} and #{A_MAX}")){solution(arr)}
-assert_raise(ArgumentError.new("a elements have to be integers between #{MIN_VAL}..#{MAX_VAL}")){solution([1,2,'a',3])}
-assert_raise(ArgumentError.new("a elements have to be integers between #{MIN_VAL}..#{MAX_VAL}")){solution([1,MIN_VAL-1,2])}
-assert_raise(ArgumentError.new("a elements have to be integers between #{MIN_VAL}..#{MAX_VAL}")){solution([1,MAX_VAL+1,2])}
+puts solution([1, 0, 1, 0, 1])
+#puts solution([1,5,2,1,4,0]) #11
+
+puts solution([1,1,1]) # 3
+#puts solution([2,2,2,2,2,2,2,2])
+
+#puts solution(Array.new(A_MAX, 3) )
+#assert_equal(0, solution(Array.new(10,0)))
+#puts solution([MIN_VAL, MAX_VAL,0,1])
+
+
+# assert_equal(11,solution([1,5,2,1,4,0]))
+# assert_raise(ArgumentError.new("a must be array")) {solution(1)}
+# arr = Array.new
+# (0..A_MAX).each {|val| arr.push(1)}
+# assert_raise(ArgumentError.new("a length must be between #{A_MIN} and #{A_MAX}")){solution(arr)}
+# assert_raise(ArgumentError.new("a elements have to be integers between #{MIN_VAL}..#{MAX_VAL}")){solution([1,2,'a',3])}
+# assert_raise(ArgumentError.new("a elements have to be integers between #{MIN_VAL}..#{MAX_VAL}")){solution([1,MIN_VAL-1,2])}
+# assert_raise(ArgumentError.new("a elements have to be integers between #{MIN_VAL}..#{MAX_VAL}")){solution([1,MAX_VAL+1,2])}
