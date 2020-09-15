@@ -39,7 +39,7 @@ MAX_LENGTH = 100000
 MIN_VAL = 1
 MAX_VAL = 1000000000
 
-def solution(h)
+def solution(h) # 77% performance
 	raise ArgumentError.new("h has to be non empty array") if !h.is_a? Array or h.empty?
 	raise ArgumentError.new("h may only be #{MAX_LENGTH} elements long") if h.length > MAX_LENGTH
 
@@ -65,6 +65,7 @@ def solution(h)
 #	puts "steps: #{steps}"
 	return steps
 end
+
 
 
 
