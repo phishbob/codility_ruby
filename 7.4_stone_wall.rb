@@ -3,6 +3,7 @@
 require "test/unit/assertions"
 include Test::Unit::Assertions
 
+# score 87% . correctness 100%. performance 77%
 
 # You are going to build a stone wall. The wall should be straight and N meters long, and its thickness should be constant;
 # however, it should have different heights in different places. The height of the wall is specified by an array H of N
@@ -32,6 +33,8 @@ include Test::Unit::Assertions
 # N is an integer within the range [1..100,000];
 # each element of array H is an integer within the range [1..1,000,000,000].
 
+
+#MIN_LEN = 1
 MAX_LENGTH = 100000
 MIN_VAL = 1
 MAX_VAL = 1000000000
@@ -39,50 +42,34 @@ MAX_VAL = 1000000000
 def solution(h)
 	raise ArgumentError.new("h has to be non empty array") if !h.is_a? Array or h.empty?
 	raise ArgumentError.new("h may only be #{MAX_LENGTH} elements long") if h.length > MAX_LENGTH
-	h.each do |elem|
-		if !elem.is_a? Integer or elem < MIN_VAL or elem > MAX_VAL
-			raise ArgumentError.new("h elements have to be integers between #{MIN_VAL}..#{MAX_VAL}")
-		end
-	end
 
-
-	res = Array.new(h.length,0)
 	steps = 0
+	blocks = Array.new(h.size,0)
 
-	puts "INIT res = #{res}, steps = #{steps}"
-	puts "INIT   h = #{h}"
+	h.each_with_index do |height, i|
+		raise ArgumentError.new("h values have to be integers between #{MIN_VAL}..#{MAX_VAL}") if !height.is_a? Integer or height < MIN_VAL or height > MAX_VAL
 
-	h.each_with_index do |elem, idx|
-		puts "elem : #{elem}, index : #{idx}"
-
-		if res[idx] == elem ## block of same height already there
-			next
-		elsif res[idx] < elem # elem is bigger than placed block
-			for i in idx..h.length-1
-				#puts "i = #{i}, h[i] = #{h[i]}"
-				break if h[i] < elem
-				res[i] = elem # place new block
-			end
-			puts "res: #{res}"
+		# we find a bigger block than actually on this index in blocks
+		if height > blocks[i]
 			steps += 1
+			j = i
+			while j < h.size	&& height <= h[j]
+				blocks[j] = height
+				j += 1
+#				puts blocks.inspect
+			end
+#			puts "---"
 		end
 
-	end
-	puts "END res : #{res}"
-	puts "steps = #{steps}"
+	end # each with index
+#	puts "steps: #{steps}"
 	return steps
 end
 
-h1 = [8,8,5,7,9,8,7,4,8]
-solution(h1)
 
 
-# assert_raise(ArgumentError.new("h has to be non empty array")) {solution(1)}
-# assert_raise(ArgumentError.new("h has to be non empty array")) {solution([])}
-# arr = Array.new(MAX_LENGTH+1, 1)
-# assert_raise(ArgumentError.new("h may only be #{MAX_LENGTH} elements long")){solution(arr)}
-# assert_raise(ArgumentError.new("h elements have to be integers between #{MIN_VAL}..#{MAX_VAL}")){solution([1,2,'a',3])}
-# assert_raise(ArgumentError.new("h elements have to be integers between #{MIN_VAL}..#{MAX_VAL}")){solution([1,MIN_VAL-1,2])}
-# assert_raise(ArgumentError.new("h elements have to be integers between #{MIN_VAL}..#{MAX_VAL}")){solution([1,MAX_VAL+1,2])}
 
-
+# h1 = [8,8,5,7,9,8,7,4,8]
+# assert_equal(7,solution(h1))
+# assert_equal(3, solution([3,3,1,2,2]))
+# assert_raise(ArgumentError.new("h values have to be integers between 1..1000000000")) {solution([3,3,1,2,MAX_VAL+1])}
