@@ -38,17 +38,22 @@ def solution(s)
 	s.each_char do |c|
 		raise ArgumentError.new("s only ( and )") unless allowed_chars.include? c
 		c == "(" ? stack += 1 : stack -= 1
+		puts "stack: #{stack}"
 		return 0 if stack < 0
 	end
 
+	return 0 if stack != 0
 	return 1
 end
 
-assert_raise(ArgumentError.new("s only ( and )")) {solution("aa")}
-assert_raise(ArgumentError.new("s length between #{MIN_LENGTH} and #{MAX_LENGTH}")) {solution("()" * (MAX_LENGTH/2 +1))}
-assert_equal(1, solution(""))
-assert_equal(0, solution("())"))
-assert_equal(0, solution("()))"))
-assert_equal(0, solution(")))((("))
-assert_equal(1, solution("((()))"))
-assert_equal(1, solution("(()(())())"))
+
+puts solution('()(()()(((()())(()()))')
+
+# assert_raise(ArgumentError.new("s only ( and )")) {solution("aa")}
+# assert_raise(ArgumentError.new("s length between #{MIN_LENGTH} and #{MAX_LENGTH}")) {solution("()" * (MAX_LENGTH/2 +1))}
+# assert_equal(1, solution(""))
+# assert_equal(0, solution("())"))
+# assert_equal(0, solution("()))"))
+# assert_equal(0, solution(")))((("))
+# assert_equal(1, solution("((()))"))
+# assert_equal(1, solution("(()(())())"))
