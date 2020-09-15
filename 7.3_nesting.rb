@@ -3,6 +3,9 @@
 require "test/unit/assertions"
 include Test::Unit::Assertions
 
+# score 87%
+# For example, for the input '()(()()(((()())(()()))' the solution returned a wrong answer (got 1 expected 0).
+
 
 # A string S consisting of N characters is called properly nested if:
 
@@ -29,6 +32,7 @@ MAX_LENGTH = 1000000
 def solution(s)
 	raise ArgumentError.new("s length between #{MIN_LENGTH} and #{MAX_LENGTH}") unless s.length >= MIN_LENGTH and s.length <= MAX_LENGTH
 	allowed_chars = "()"
+	return 0 if s.length % 2 != 0
 
 	stack = 0
 	s.each_char do |c|
@@ -40,10 +44,11 @@ def solution(s)
 	return 1
 end
 
-assert_raise(ArgumentError.new("s only ( and )")) {solution("a")}
+assert_raise(ArgumentError.new("s only ( and )")) {solution("aa")}
 assert_raise(ArgumentError.new("s length between #{MIN_LENGTH} and #{MAX_LENGTH}")) {solution("()" * (MAX_LENGTH/2 +1))}
 assert_equal(1, solution(""))
 assert_equal(0, solution("())"))
+assert_equal(0, solution("()))"))
 assert_equal(0, solution(")))((("))
 assert_equal(1, solution("((()))"))
 assert_equal(1, solution("(()(())())"))
