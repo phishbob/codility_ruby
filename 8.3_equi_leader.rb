@@ -3,7 +3,7 @@
 require "test/unit/assertions"
 include Test::Unit::Assertions
 
-# score 55% correctness 100% - performance 0%
+# score 66% correctness 100% - performance 25%
 # A non-empty array A consisting of N integers is given.
 
 # The leader of this array is the value that occurs in more than half of the elements of A.
@@ -58,70 +58,61 @@ MAX_VAL =  1000000000
 def solution(a)
 	raise ArgumentError.new("a has to be non empty array of max size #{MAX_LEN}") if !a.is_a? Array or a.empty? or a.length > MAX_LEN
 	ret = 0
+	#puts a.inspect
+	my_h = Hash.new
+	a.each do |e|
+		if my_h.include? e
+			my_h[e] += 1
+		else
+			my_h[e] = 1
+		end
+	end
+
+	my_h_sort = my_h.sort_by {|k, v| -v}
+	#puts "my_h_sort: #{my_h_sort[0][0]}, #{my_h_sort[1]}"
+	# -> my_h_sort[value][occurances]
+	if my_h_sort.first[1] < a.size/2
+		return 0
+	end
+	leader_val = my_h_sort.first[0]
+	#puts "leader_val: #{leader_val}"
 
 	for idx in (0...a.length-1) do
-		#puts "IDX ------> #{idx}-------" if idx%100 == 0
-		count_low = Hash.new
+	#for idx in (0...1000) do
 		leader = false
-		count1 = idx/2+1
-		#puts "count1: #{count1}"
-		(0..idx).each do |i|
-			if count_low[a[i]]
-			 	count_low[a[i]] = count_low[a[i]] +1
-			elsif i < count1
-			 	count_low[a[i]] = 1
-			end
-			 # unless count_low[a[i]]
-			 # else
-			 # 	count_low[a[i]] = count_low[a[i]] +1
-			 # end
-		end
-		s1 = count_low.sort_by {|k, v| -v}.first
-		#puts "count_low sorted: #{count_low.inspect}"
-
-		leader = true if s1[1] > (idx+1)/2.0
-		#puts "count1 : #{count1}"
-		next unless leader
-		count2 = (a.length - idx) /2 + idx +1
-		#puts "count2 : #{count2}"
-
 		leader2 = false
-		count_high = Hash.new
+		count_low = 0
+
+		(0..idx).each do |i|
+			count_low += 1 if a[i] == leader_val
+		end
+
+		leader = true if count_low > ((idx+1)/2.0)
+		#puts "leader: #{leader}, count_low: #{count_low}, treshold = #{(idx+1)/2.0}"
+		next unless leader
+		count_high = 0
 		(idx+1...a.length).each do |i|
-			if count_high[a[i]]
-				count_high[a[i]] = count_high[a[i]] +1
-			elsif i < count2
-				count_high[a[i]] = 1
-			end
-			 # unless
-			 # 	count_high[a[i]] = 1
-			 # else
-			 # 	count_high[a[i]] = count_high[a[i]] +1
-			 # end
+			count_high += 1 if a[i] == leader_val
 		end
 
-		s2 = count_high.sort_by {|k, v| -v}.first
-		#puts "#{count_high.inspect}"
-		#puts "count_high sorted: #{s2.inspect}"
-		#puts "len 2 = #{(a.length-idx-1 )/2.0 }"
-		#puts "#{s2[1]} > #{(a.length- idx-1 )/2.0}"
-		leader2 = true if s2[1] > (a.length- idx-1 )/2.0
+		leader2 = true if count_high > (a.length- idx-1 )/2.0
+		#puts "leader2: #{leader2}, count_high: #{count_high}, treshold = #{(a.length- idx-1 )/2.0}"
 
-		#puts "++ leader: #{leader}, leader2: #{leader2}, #{s1[0]}, #{s2[0]}"
-		if leader && leader2 && s1[0] == s2[0]
-			#puts "++++ we have a equi leader: #{s1[0]} ++++"
-			ret += 1
-		end
-
+		ret += 1 if leader && leader2
+		puts "-------- ret: #{ret}"
 	end
+##### END OF CODE
+
+
+
 	return ret
 
 end
 
-#assert_equal(2, solution([4,3,4,4,4,2])) #2
-#assert_equal(3, solution([1,2,1,1,1])) #3
-#assert_equal(3, solution([2,1,1,1,1,1]) )
-#assert_equal(0, solution([1,2,4,5]))
-#assert_equal(0, solution([1])) #0
-arr = Array.new(MAX_LEN) { rand(MIN_VAL..MAX_VAL)  }
+assert_equal(2, solution([4,3,4,4,4,2])) #2
+assert_equal(3, solution([1,2,1,1,1])) #3
+assert_equal(3, solution([2,1,1,1,1,1]) )
+assert_equal(0, solution([1,2,4,5]))
+assert_equal(0, solution([1])) #0
+arr = Array.new(1000) { rand(MIN_VAL..MAX_VAL)  }
 puts solution(arr)
